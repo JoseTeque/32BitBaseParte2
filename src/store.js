@@ -57,7 +57,8 @@ const store = new Vuex.Store({
         color:"red",
         outstanding:true
       }
-    ]
+    ],
+    sales: []
   },
   getters: {
     availableGames(state){
@@ -66,10 +67,36 @@ const store = new Vuex.Store({
     searchById: (_state, getters) => codigo =>  getters.availableGames.filter(game => game.codigo == codigo),
     totalStock(state){
       return state.games.reduce((acc, game) => acc + game.stock, 0)
+    },
+    totalgamesSold(state){
+      let games = state.sales.map(game => game.name)
+
+      return  games.reduce((r,c) => (r[c] = (r[c] || 0) + 1, r), {})
+    },
+    totalAmount(state){
+      return state.sales.reduce((acc,game) => acc + game.price,0)
     }
   },
-  mutations: {},
-  actions: {}
+  mutations: {
+    ADD_SALE(state, product){
+      state.sales.push(product)
+    },
+    REMOVE_FROM_STOCK(state,game){
+      let prod = state.games.find(p => p.codigo === game.codigo)
+      prod.stock -=1;
+    }
+  },
+  actions: {
+    processSale({commit},game){
+      setTimeout(() => {
+        commit("REMOVE_FROM_STOCK", game)
+        setTimeout(() => {
+          commit("ADD_SALE",game)
+          alert("VENTA PROCESADA")
+        }, 2000)
+      },3000)
+    }
+  }
 });
 
 export default store;
